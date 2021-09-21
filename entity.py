@@ -3,7 +3,7 @@ Code for an entity in the network. This is where you should implement the
 distance-vector algorithm.
 '''
 
-import packet
+from packet import Packet
 
 class Entity:
     '''
@@ -55,7 +55,7 @@ class Entity:
         
         for neighbor in self.neighbors:
             next_hop[neighbor] = neighbor
-            packets.append(packet(neighbor, vector))
+            packets.append(Packet(neighbor, vector))
             
         self.next_hop = next_hop
             
@@ -73,7 +73,7 @@ class Entity:
         '''
         packets = []
         updated = False
-        new_info = [x + self.vector[packet.get_source()] for x in packet[1]]
+        new_info = [x + self.vector[packet.get_source()] for x in packet.get_costs()]
         for i in range(self.number_of_entities):
             if  new_info[i] < self.vector[i]:
                 self.vector[i] = new_info[i]
@@ -82,7 +82,7 @@ class Entity:
                 
         if updated:
             for neighbor in self.neighbors:
-                packets.append(packet(neighbor, self.vector))
+                packets.append(Packet(neighbor, self.vector))
             
         return packets
         
@@ -99,9 +99,9 @@ class Entity:
         first element of the array is the next hop and cost to entity index 0,
         second element is to entity index 1, etc.
         '''
-        hop_cost = []
+        hop_cost = [(0,0)] * self.number_of_entities
         for i in range(self.number_of_entities):
-            hop_cost[i].append((self.next_hop[i], self.vector[i]))
+            hop_cost[i] = (self.next_hop[i], self.vector[i])
         return hop_cost
 
     def forward_next_hop(self, destination):
